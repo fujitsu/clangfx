@@ -1450,6 +1450,15 @@ def menable_unsafe_fp_math : Flag<["-"], "menable-unsafe-fp-math">, Flags<[CC1Op
   HelpText<"Allow unsafe floating-point math optimizations which may decrease precision">,
   MarshallingInfoFlag<LangOpts<"UnsafeFPMath">>,
   ImpliedByAnyOf<[cl_unsafe_math_optimizations.KeyPath, ffast_math.KeyPath]>;
+// Start Fujitsu Extension
+// Start Fujitsu Extension: 7-L-018
+def ffj_fjprof : Flag<["-"], "ffj-fjprof">, Group<f_Group>, Flags<[NoArgumentUnused]>,
+  HelpText<"Enable the Profiler function.">;
+def ffj_no_fjprof : Flag<["-"], "ffj-no-fjprof">, Group<f_Group>, Flags<[NoArgumentUnused]>,
+  HelpText<"Disable the Profiler function.">;
+def ffj_mpi : Flag<["-"], "ffj-mpi">, Group<f_Group>, Flags<[NoArgumentUnused]>;
+// End Fujitsu Extension: 7-L-018
+// End Fujitsu Extension
 // Start Fujitsu Extension: 3-D-003
 def ffj_line : Flag<["-"], "ffj-line">, Group<f_Group>, Flags<[CC1Option, CoreOption]>,
   HelpText<"Generates additional information required to use the execution time sampling function provided with the Profiler.">,

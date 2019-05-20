@@ -379,6 +379,70 @@ void tools::gnutools::StaticLibTool::ConstructJob(
                                          Exec, CmdArgs, Inputs, Output));
 }
 
+// Start Fujitsu Extension: 7-L-018
+// --linkcoarray
+static bool isLinkcoarray(const ArgList &Args) {
+  /**
+   * 変数linkProfileForMPIの定義に使われているため
+   * とりあえず関数を定義した
+   */
+  //if (Args.hasArg(options::OPT_linkcoarray))
+    //return true;
+
+  return false;
+}
+
+static bool isLinkprof(const ArgList &Args) {
+  if (Args.hasFlag(options::OPT_ffj_fjprof, options::OPT_ffj_no_fjprof, false))
+    return true;
+
+  return false;
+}
+
+static bool isMPI(const ArgList &Args) {
+  if (Args.hasArg(options::OPT_ffj_mpi))
+    return true;
+
+  return false;
+}
+
+static void addFujitsuProfilerObject(ArgStringList &CmdArgs,
+                                     const ArgList &Args,
+                                     const std::string &FJLib64Path) {
+// link(Profiler RTS object) is released in V4.0L20
+//   CmdArgs.push_back(Args.MakeArgString(FJLib64Path + "/fjrtprof.o"));
+}
+
+static void addFujitsuProfilerRuntime(ArgStringList &CmdArgs) {
+  // link(Profiler RTS) is released in V4.0L20
+  //CmdArgs.push_back("-lfjrtcl");
+  CmdArgs.push_back("-lfjprofcore");
+  CmdArgs.push_back("-lfjprofomp");
+}
+
+static void addFujitsuProfilerRuntimeForMPI(ArgStringList &CmdArgs) {
+  CmdArgs.push_back("-lfjprofmpi");
+}
+
+// Fujitsu runtime
+static void addFujitsuRuntime(const Driver &D,
+                              ArgStringList &CmdArgs,
+                              const ArgList &Args,
+                              const std::string &FJLib64Path,
+                              llvm::Triple::ArchType TargetArch,
+                              const std::string &CPU,
+                              const SanitizerArgs &Sanitize) {
+  // Profiler object
+  bool linkProfiler = isLinkprof(Args);
+  if (linkProfiler)
+    addFujitsuProfilerObject(CmdArgs, Args, FJLib64Path);
+
+  // Profiler runtime
+  if (linkProfiler)
+    addFujitsuProfilerRuntime(CmdArgs);
+}
+// End Fujitsu Extension: 7-L-018
+
 void tools::gnutools::Linker::ConstructJob(Compilation &C, const JobAction &JA,
                                            const InputInfo &Output,
                                            const InputInfoList &Inputs,
@@ -568,9 +632,28 @@ void tools::gnutools::Linker::ConstructJob(Compilation &C, const JobAction &JA,
   bool NeedsSanitizerDeps = addSanitizerRuntimes(ToolChain, Args, CmdArgs);
   bool NeedsXRayDeps = addXRayRuntime(ToolChain, Args, CmdArgs);
   addLinkerCompressDebugSectionsOption(ToolChain, Args, CmdArgs);
+
+  // Start Fujitsu Extension: 7-L-018
+  // add FJ Profiler runtime for MPI
+  bool linkProfileForMPI = (isLinkprof(Args) &&
+                            (isMPI(Args) || isLinkcoarray(Args)));
+  if (linkProfileForMPI)
+    addFujitsuProfilerRuntimeForMPI(CmdArgs);
+  // End Fujitsu Extension: 7-L-018
+
   AddLinkerInputs(ToolChain, Inputs, Args, CmdArgs, JA);
   // The profile runtime also needs access to system libraries.
   getToolChain().addProfileRTLibs(Args, CmdArgs);
+
+  // Start Fujitsu Extension: 7-L-018
+  // 2019.01.24 add FJ lib64
+  static std::string FJLib64Path = D.Dir + "/../../lib64";
+  CmdArgs.push_back(Args.MakeArgString("-L" + FJLib64Path));
+  // 2019.02.19 add FJ runtime
+  addFujitsuRuntime(D, CmdArgs, Args, FJLib64Path, getToolChain().getArch(),
+                    getCPUName(Args, Triple),
+                    getToolChain().getSanitizerArgs());
+  // End Fujitsu Extension: 7-L-018
 
   if (D.CCCIsCXX() &&
       !Args.hasArg(options::OPT_nostdlib, options::OPT_nodefaultlibs)) {
