@@ -1,5 +1,7 @@
-// RUN: %clang -target x86_64-linux-gnu -fsplit-stack -S -std=c++11 %s -emit-llvm -o - | FileCheck -check-prefix=CHECK-SEGSTK %s
-// RUN: %clang -target x86_64-linux-gnu -S -std=c++11 %s -emit-llvm -o - | FileCheck -check-prefix=CHECK-NOSEGSTK %s
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -target x86_64-linux-gnu -fsplit-stack -S -std=c++11 %s -emit-llvm -o - | FileCheck -check-prefix=CHECK-SEGSTK %s
+// RUN: %clang -ffj-no-line -target x86_64-linux-gnu -S -std=c++11 %s -emit-llvm -o - | FileCheck -check-prefix=CHECK-NOSEGSTK %s
+// End Fujitsu Extension: 3-D-003
 
 int foo() {
   return 0;

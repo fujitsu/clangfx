@@ -268,6 +268,11 @@ HANDLE_DW_TAG(0xb002, BORLAND_Delphi_dynamic_array, 0, BORLAND, DW_KIND_TYPE)
 HANDLE_DW_TAG(0xb003, BORLAND_Delphi_set, 0, BORLAND, DW_KIND_TYPE)
 HANDLE_DW_TAG(0xb004, BORLAND_Delphi_variant, 0, BORLAND, DW_KIND_TYPE)
 
+// Start Fujitsu Extension: 3-D-003
+// Vendor extensions: by FUJITSU
+HANDLE_DW_TAG(0xf000, FJ_loop, 0, FUJITSU, DW_KIND_NONE)
+// End Fujitsu Extension: 3-D-003
+
 // Attributes.
 HANDLE_DW_AT(0x01, sibling, 2, DWARF)
 HANDLE_DW_AT(0x02, location, 2, DWARF)
@@ -560,6 +565,16 @@ HANDLE_DW_AT(0x2903, GO_embedded_field, 0, GO)
 HANDLE_DW_AT(0x2904, GO_runtime_type, 0, GO)
 
 HANDLE_DW_AT(0x3210, UPC_threads_scaled, 0, UPC)
+
+// Start Fujitsu Extension: 3-D-003
+HANDLE_DW_AT(0x3300, FJ_loop_start_line, 0, FUJITSU)
+HANDLE_DW_AT(0x3301, FJ_loop_end_line, 0, FUJITSU)
+HANDLE_DW_AT(0x3302, FJ_loop_nest_level, 0, FUJITSU)
+HANDLE_DW_AT(0x3303, FJ_loop_type, 0, FUJITSU)
+HANDLE_DW_AT(0x3304, FJ_loop_simd_width, 0, FUJITSU)
+HANDLE_DW_AT(0x3305, FJ_loop_swp_threshold, 0, FUJITSU)
+HANDLE_DW_AT(0x3306, FJ_loop_unroll, 0, FUJITSU)
+// End Fujitsu Extension: 3-D-003
 
 HANDLE_DW_AT(0x393e, IBM_wsa_addr, 0, IBM)
 HANDLE_DW_AT(0x393f, IBM_home_location, 0, IBM)

@@ -12,7 +12,9 @@
 // RUN: %clang_cl /Z7 -gcodeview-ghash -gno-codeview-ghash -### -- %s 2>&1 | FileCheck -check-prefix=NO_GHASH %s
 
 // enabled, no /Z7
-// RUN: %clang_cl -gcodeview-ghash -### -- %s 2>&1 | FileCheck -check-prefix=NO_GHASH %s
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang_cl -ffj-no-line -gcodeview-ghash -### -- %s 2>&1 | FileCheck -check-prefix=NO_GHASH %s
+// End Fujitsu Extension: 3-D-003
 
 // GCC-style driver
 // RUN: %clang -g -gcodeview -gcodeview-ghash -### -- %s 2>&1 | FileCheck -check-prefix=GHASH %s

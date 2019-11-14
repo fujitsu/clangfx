@@ -2188,6 +2188,11 @@ void DwarfDebug::endFunctionImpl(const MachineFunction *MF) {
     return;
   }
 
+// Start Fujitsu Extension: 3-D-003
+  if (TheCU.getCUNode()->getFjLoopInformation())
+    TheCU.outputFJLoopInfo(SP, nullptr);
+// End Fujitsu Extension: 3-D-003
+
   DenseSet<InlinedEntity> Processed;
   collectEntityInfo(TheCU, SP, Processed);
 
@@ -2203,6 +2208,16 @@ void DwarfDebug::endFunctionImpl(const MachineFunction *MF) {
       TheCU.getCUNode()->getEmissionKind() == DICompileUnit::LineTablesOnly &&
       LScopes.getAbstractScopesList().empty() && !IsDarwin) {
     assert(InfoHolder.getScopeVariables().empty());
+// Start Fujitsu Extension: 3-D-003
+    /**
+     * LineTablesOnlyが有効時、デバッグ情報はCompileUnitしか生成されない。
+     * ループ情報を追加するために必要な最低限のデバッグ情報を生成する。
+     */
+    if (TheCU.getCUNode()->getFjLoopInformation()) {
+      ProcessedSPNodes.insert(SP);
+      TheCU.constructSubprogramScopeDIE(SP, FnScope);
+    }
+// End Fujitsu Extension: 3-D-003
     PrevLabel = nullptr;
     CurFn = nullptr;
     return;

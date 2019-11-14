@@ -85,6 +85,13 @@ enum LLVMConstants : uint32_t {
   DWARF_VENDOR_PGI,
   DWARF_VENDOR_SUN,
   DWARF_VENDOR_UPC,
+// Start Fujitsu Extension: 3-D-003
+/*
+ * LLVMの版数アップ等で他ベンダー情報(DWARF_VENDOR_XXXX が増えた場合、
+ * DWARF_VENDOR_FUJITSU の値は後ろにずらしてください
+ */
+  DWARF_VENDOR_FUJITSU,
+// End Fujitsu Extension: 3-D-003
   ///\}
 };
 

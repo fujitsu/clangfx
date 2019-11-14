@@ -1450,6 +1450,13 @@ def menable_unsafe_fp_math : Flag<["-"], "menable-unsafe-fp-math">, Flags<[CC1Op
   HelpText<"Allow unsafe floating-point math optimizations which may decrease precision">,
   MarshallingInfoFlag<LangOpts<"UnsafeFPMath">>,
   ImpliedByAnyOf<[cl_unsafe_math_optimizations.KeyPath, ffast_math.KeyPath]>;
+// Start Fujitsu Extension: 3-D-003
+def ffj_line : Flag<["-"], "ffj-line">, Group<f_Group>, Flags<[CC1Option, CoreOption]>,
+  HelpText<"Generates additional information required to use the execution time sampling function provided with the Profiler.">,
+  MarshallingInfoFlag<CodeGenOpts<"FjLine">>;
+def ffj_no_line : Flag<["-"], "ffj-no-line">, Group<f_Group>, Flags<[CC1Option, CoreOption]>,
+  HelpText<"Does not generate additional information required to use the execution time sampling function provided with the Profiler.">;
+// End Fujitsu Extension: 3-D-003
 defm math_errno : BoolFOption<"math-errno",
   LangOpts<"MathErrno">, DefaultFalse,
   PosFlag<SetTrue, [CC1Option], "Require math functions to indicate errors by setting errno">,

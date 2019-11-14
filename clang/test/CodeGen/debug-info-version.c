@@ -1,5 +1,7 @@
 // RUN: %clang -g -S -emit-llvm -o - %s | FileCheck %s
-// RUN: %clang -S -emit-llvm -o - %s | FileCheck %s --check-prefix=NO_DEBUG
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -S -emit-llvm -o - %s | FileCheck %s --check-prefix=NO_DEBUG
+// End Fujitsu Extension: 3-D-003
 int main (void) {
   return 0;
 }

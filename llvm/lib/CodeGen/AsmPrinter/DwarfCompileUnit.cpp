@@ -638,6 +638,31 @@ void DwarfCompileUnit::attachRangesOrLowHighPC(
   attachRangesOrLowHighPC(Die, std::move(List));
 }
 
+// Start Fujitsu Extension: 3-D-003
+/**
+ * @brief メモリ領域を獲得する。(メモリ領域獲得関数のラップ関数)
+ * @param [in] *Scope インライン展開される関数のスコープ
+ * @return インライン展開する側(caller)のDIE
+ */
+DIE *DwarfCompileUnit::getCallerSubprogram(LexicalScope *Scope) {
+  DIE *CallerDIE = nullptr;
+  DIE *SPDie     = nullptr;
+
+  for (LexicalScope *LS = Scope->getParent();
+       LS != nullptr;
+       LS = LS->getParent())
+  {
+    auto *DS = LS->getScopeNode();
+    auto *SP = getDISubprogram(DS);
+    SPDie = getDIE(SP);
+
+    if ((SPDie) && (SPDie->getTag() == dwarf::DW_TAG_subprogram))
+      CallerDIE = SPDie;
+  }
+  return CallerDIE;
+}
+// End Fujitsu Extension: 3-D-003
+
 // This scope represents inlined body of a function. Construct DIE to
 // represent this concrete inlined copy of the function.
 DIE *DwarfCompileUnit::constructInlinedScopeDIE(LexicalScope *Scope) {
@@ -651,6 +676,15 @@ DIE *DwarfCompileUnit::constructInlinedScopeDIE(LexicalScope *Scope) {
 
   auto ScopeDIE = DIE::get(DIEValueAllocator, dwarf::DW_TAG_inlined_subroutine);
   addDIEEntry(*ScopeDIE, dwarf::DW_AT_abstract_origin, *OriginDIE);
+
+// Start Fujitsu Extension: 3-D-003
+  DwarfCompileUnit *ContextCU = this;
+  if (ContextCU->getCUNode()->getFjLoopInformation()) {
+      DIE *ParentSubprogram = getCallerSubprogram(Scope);
+      if (ParentSubprogram)
+        ContextCU->outputFJLoopInfo(InlinedSP, ParentSubprogram);
+  }
+// End Fujitsu Extension: 3-D-003
 
   attachRangesOrLowHighPC(*ScopeDIE, Scope->getRanges());
 
@@ -1559,3 +1593,102 @@ void DwarfCompileUnit::createBaseTypeDIEs() {
     Btr.Die = &Die;
   }
 }
+
+// Start Fujitsu Extension: 3-D-003
+/**
+ * @fn
+ * 	すでに登録済みのループ情報か確認する。
+ * @brief 登録済みループ情報の確認
+ * @param [in] *Die 確認を行うTAGのDIE
+ * @param [in] FileNum   ファイル番号
+ * @param [in] StartLine ループ開始行
+ * @param [in] EndLine   ループ終了行
+ * @param [in] Nest      ループネスト値
+ * @param [in] LoopType  ループ種別
+ * @retval true  登録済み
+ * @retval false 未登録
+ */
+static bool isRegisteredFJLoopDIE(DIE *Die,
+                              unsigned FileNum,
+                              unsigned StartLine,
+                              unsigned EndLine,
+                              unsigned Nest,
+                              unsigned LoopType
+                              )
+{
+  if (!Die->hasChildren())
+    return false;
+
+  for (auto &Child : Die->children()) {
+    if (Child.getTag() == dwarf::DW_TAG_FJ_loop) {
+      DIEValue fileNum   = Child.findAttribute(dwarf::DW_AT_decl_file);
+      DIEValue loopStart = Child.findAttribute(dwarf::DW_AT_FJ_loop_start_line);
+      DIEValue loopEnd   = Child.findAttribute(dwarf::DW_AT_FJ_loop_end_line);
+      DIEValue nestLevel = Child.findAttribute(dwarf::DW_AT_FJ_loop_nest_level);
+      DIEValue loopType  = Child.findAttribute(dwarf::DW_AT_FJ_loop_type);
+      if ((!fileNum)   || (!loopStart) || (!loopEnd) ||
+          (!nestLevel) || (!loopType))
+        continue;
+      if ((fileNum.getDIEInteger().getValue() == FileNum) &&
+          (loopStart.getDIEInteger().getValue() == StartLine) &&
+          (loopEnd.getDIEInteger().getValue() == EndLine) &&
+          (nestLevel.getDIEInteger().getValue() == Nest) &&
+          (loopType.getDIEInteger().getValue() == LoopType))
+        return true;
+    }
+  }
+
+  return false;
+}
+// End Fujitsu Extension: 3-D-003
+
+// Start Fujitsu Extension: 3-D-003
+/**
+ * @fn
+ * 	FrontEndで蓄積したループ情報を基にループ情報(DW_TAG_FJ_loop)を
+ * 	生成し、親関数(DW_TAG_subprogram)配下に登録する。
+ * @brief ループ情報を親関数(DW_TAG_subprogram)に登録する。
+ * @param [in] *SP  ループ情報を保持(ループ情報を登録)するDISubprogram
+ * @param [in] *Die ループ情報を登録する登録する関数のDIE(null時はSP)
+ * @return 無し
+ */
+void DwarfCompileUnit::outputFJLoopInfo(const DISubprogram *SP, DIE *Die) {
+  DwarfCompileUnit *TheCU = this;
+
+  if (!SP)
+    return;
+  DIE *SPDie = nullptr;
+  if (Die)
+    SPDie = Die;
+  else
+    SPDie = TheCU->getOrCreateSubprogramDIE(SP, false);
+  if (!SPDie)
+    return;
+
+  std::vector<DISubprogram::FJLoop> loopInfos = SP->getFJLoopInfo();
+  for (std::vector<DISubprogram::FJLoop>::const_iterator vec = loopInfos.begin();
+                  vec != loopInfos.end(); vec++) {
+    // ループが記述されているファイルのファイル番号
+    unsigned loopFile = TheCU->getOrCreateSourceID(vec->DeclFile);
+
+    // 登録済みのループ情報か
+    if (isRegisteredFJLoopDIE(SPDie,loopFile,vec->StartLine,vec->EndLine,vec->Nest,vec->LoopType))
+      continue;
+
+    /* TAG */
+    // SPDie配下にDW_TAG_FJ_loop を生成
+    DIE &LoopDie = TheCU->createAndAddDIE(dwarf::DW_TAG_FJ_loop, *SPDie, nullptr);
+    /* Attributes */
+    // ファイル情報(番号)
+    TheCU->addUInt(LoopDie, dwarf::DW_AT_decl_file, None, loopFile);
+    // ループの開始行番号
+    TheCU->addUInt(LoopDie, dwarf::DW_AT_FJ_loop_start_line, None, vec->StartLine);
+    // ループの終了行番号
+    TheCU->addUInt(LoopDie, dwarf::DW_AT_FJ_loop_end_line, None, vec->EndLine);
+    // ループのネストレベル
+    TheCU->addUInt(LoopDie, dwarf::DW_AT_FJ_loop_nest_level, None, vec->Nest);
+    // ループの種別
+    TheCU->addUInt(LoopDie, dwarf::DW_AT_FJ_loop_type, None, vec->LoopType);
+  }
+}
+// End Fujitsu Extension: 3-D-003

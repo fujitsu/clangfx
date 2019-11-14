@@ -22,12 +22,16 @@
 // DARWIN-NOT: "-split-dwarf
 
 /// -gsplit-dwarf is a no-op if no -g is specified.
-// RUN: %clang -### -c -target x86_64 -gsplit-dwarf %s 2>&1 | FileCheck %s --check-prefix=G0
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -gsplit-dwarf %s 2>&1 | FileCheck %s --check-prefix=G0
+// End Fujitsu Extension: 3-D-003
 
 /// ... unless -fthinlto-index= is specified.
 // RUN: echo > %t.bc
-// RUN: %clang -### -c -target x86_64 -fthinlto-index=dummy -gsplit-dwarf %t.bc 2>&1 | FileCheck %s --check-prefix=IR
-// RUN: %clang -### -c -target x86_64 -gsplit-dwarf -x ir %t.bc 2>&1 | FileCheck %s --check-prefix=IR
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -fthinlto-index=dummy -gsplit-dwarf %t.bc 2>&1 | FileCheck %s --check-prefix=IR
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -gsplit-dwarf -x ir %t.bc 2>&1 | FileCheck %s --check-prefix=IR
+// End Fujitsu Extension: 3-D-003
 
 // IR-NOT:  "-debug-info-kind=
 // IR:      "-ggnu-pubnames"
@@ -76,11 +80,13 @@
 // NOOBJCOPY-NOT: objcopy"
 
 /// Interaction with -g0.
-// RUN: %clang -### -c -target x86_64 -gsplit-dwarf -g0 -### %s 2>&1 | FileCheck %s --check-prefix=G0
-// RUN: %clang -### -c -target x86_64 -gsplit-dwarf=single -g0 %s 2>&1 | FileCheck %s --check-prefix=G0
-// RUN: %clang -### -c -target x86_64 -g0 -gsplit-dwarf %s 2>&1 | FileCheck %s --check-prefixes=G0
-// RUN: %clang -### -c -target x86_64 -g0 -gsplit-dwarf=single %s 2>&1 | FileCheck %s --check-prefix=G0
-// RUN: %clang -### -c -target x86_64 -gsplit-dwarf=single -g0 -fsplit-dwarf-inlining %s 2>&1 | FileCheck %s --check-prefix=G0
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -gsplit-dwarf -g0 -### %s 2>&1 | FileCheck %s --check-prefix=G0
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -gsplit-dwarf=single -g0 %s 2>&1 | FileCheck %s --check-prefix=G0
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -g0 -gsplit-dwarf %s 2>&1 | FileCheck %s --check-prefixes=G0
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -g0 -gsplit-dwarf=single %s 2>&1 | FileCheck %s --check-prefix=G0
+// RUN: %clang -ffj-no-line -### -c -target x86_64 -gsplit-dwarf=single -g0 -fsplit-dwarf-inlining %s 2>&1 | FileCheck %s --check-prefix=G0
+// End Fujitsu Extension: 3-D-003
 
 // G0-NOT: "-debug-info-kind=
 // G0-NOT: "-split-dwarf-

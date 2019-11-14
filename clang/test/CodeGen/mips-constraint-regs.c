@@ -1,5 +1,7 @@
-// RUN: %clang -target mipsel-unknown-linux -S -o - -emit-llvm %s \
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -target mipsel-unknown-linux -S -o - -emit-llvm %s \
 // RUN: | FileCheck %s
+// End Fujitsu Extension: 3-D-003
 
 // This checks that the frontend will accept inline asm constraints
 // c', 'l' and 'x'.

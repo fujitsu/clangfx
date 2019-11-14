@@ -220,6 +220,9 @@ PassManagerBuilder::PassManagerBuilder() {
     PerformThinLTO = EnablePerformThinLTO;
     DivergentTarget = false;
     CallGraphProfile = true;
+    // Start Fujitsu Extension: 3-D-003
+    FjLine = false;
+    // End Fujitsu Extension: 3-D-003
 }
 
 PassManagerBuilder::~PassManagerBuilder() {

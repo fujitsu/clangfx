@@ -410,6 +410,10 @@ CODEGENOPT(DebugRangesBaseAddress, 1, 0)
 
 CODEGENOPT(NoPLT, 1, 0)
 
+// Start Fujitsu Extension: 3-D-003
+CODEGENOPT(FjLine, 1, 0) ///< Set loop information for profiler
+// End Fujitsu Extension: 3-D-003
+
 /// Whether to embed source in DWARF debug line section.
 CODEGENOPT(EmbedSource, 1, 0)
 

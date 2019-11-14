@@ -622,6 +622,9 @@ void CGDebugInfo::CreateCompileUnit() {
           : static_cast<llvm::DICompileUnit::DebugNameTableKind>(
                 CGOpts.DebugNameTable),
       CGOpts.DebugRangesBaseAddress, remapDIPath(Sysroot), SDK);
+// Start Fujitsu Extension: 3-D-003
+   TheCU->setFjLoopInformation(CGOpts.FjLine);
+// End Fujitsu Extension: 3-D-003
 }
 
 llvm::DIType *CGDebugInfo::CreateType(const BuiltinType *BT) {
@@ -3861,6 +3864,145 @@ llvm::DISubroutineType *CGDebugInfo::getOrCreateFunctionType(const Decl *D,
   return cast<llvm::DISubroutineType>(getOrCreateType(FnType, F));
 }
 
+//// Start Fujitsu Extension: 3-D-003
+/**
+ * @fn
+ * 	ASTのステートメントを解析し、ループ情報に必要な以下の項目を
+ * 	取得する。
+ * 	- ファイル情報
+ * 	- ループ開始行／終了行
+ * 	- ループネスト値
+ * 	- ループ種別
+ * @brief ASTからループ情報を取得する。
+ * @param [in] *SP  ループ情報を登録する親関数(DISubprogram)
+ * @param [in] *S   解析対象になるASTのStatement
+ * @param [in] Nest ループのネスト値
+ * @return 無し
+ */
+void CGDebugInfo::collectLoopInformation(llvm::DISubprogram *SP,
+		                         Stmt *S, unsigned Nest) {
+  unsigned loopStart, loopEnd;
+  unsigned loopNest = Nest;
+  signed   loopType = -1;
+
+  if (!SP || !S)
+    return;
+
+  // ループ種別
+  switch (S->getStmtClass()) {
+    case Stmt::OMPParallelDirectiveClass:
+    case Stmt::OMPParallelForDirectiveClass:
+    case Stmt::OMPParallelForSimdDirectiveClass:
+    case Stmt::OMPParallelSectionsDirectiveClass:
+    case Stmt::OMPTaskDirectiveClass:
+    case Stmt::OMPTaskLoopDirectiveClass:
+    case Stmt::OMPTaskLoopSimdDirectiveClass:
+    case Stmt::OMPTaskgroupDirectiveClass:
+    {
+    /**
+     * ompディレクティブ が入れ子になった場合、入れ子までの区間が対象となる
+     * 対象となるディレクティブは以下のとおり。これらのディレクティブは
+     * 別の関数として処理される
+     *  - omp parallel
+     *  - omp parallel for
+     *  - omp parallel for simd
+     *  - omp parallel sections
+     *  - omp task
+     *  - omp taskloop
+     *  - omp taskloop simd
+     *  - omp taskgroup
+     *
+     * 以下の例(omp parallel for)では
+     *  - 外側の omp parallel for では、kのループだけが対象
+     *  - 内側の omp parallel for では、jとiのループが対象
+     *
+     * #pragma omp parallel for
+     *   for (k=...) {
+     * #pragma omp parallel for
+     *     for (j=...) {
+     *       for (i=...) {
+     *         :
+     *       } // end for(i=...)
+     *     } // end for(j=...)
+     *   } // end for(k=...)
+     *        
+     * OMPParallelForDirective    -----------+
+     * |-OMPPrivateClause                    |
+     * ~                                     ~
+     * `-CapturedStmt                        | この区間が対象となる
+     *   |-CapturedDecl                      |
+     *   | |-ForStmt (kのループ)             |
+     *   ~ ~                                 ~
+     *   | | `-CompoundStmt       -----------+
+     *   | |   `-OMPParallelForDirective
+     *   ~ ~       ~ ~
+     *   | |       | |-ForStmt (jのループ)
+     */
+	 return;
+    }
+    case Stmt::DeclStmtClass: {
+         const DeclStmt *DS = dyn_cast<DeclStmt>(S);
+         for (DeclStmt::const_decl_iterator I = DS->decl_begin(),
+                                            E = DS->decl_end();
+                                            I != E; ++I) {
+           if (!(*I) || !(*I)->hasBody() || isa<FunctionDecl>(*I)) continue;
+           Stmt *stmt = dyn_cast<Stmt>((*I)->getBody());
+           collectLoopInformation(SP, stmt, loopNest);
+         }
+         return;
+      }
+    case Stmt::CapturedStmtClass: {
+         const CapturedStmt *CS = cast<CapturedStmt>(S);
+	 if (!CS)
+	   return;
+	 const CapturedDecl *CD = CS->getCapturedDecl();
+	 if (!(CD->hasBody()))
+	   return;
+         Stmt *stmt = dyn_cast<Stmt>(CD->getBody());
+	 collectLoopInformation(SP, stmt, loopNest);
+         return;
+    }
+    case Stmt::DoStmtClass:	// DoStmt
+      loopType = 0;
+      break;
+    case Stmt::WhileStmtClass:	// WhileStmt
+      loopType = 1;
+      break;
+    case Stmt::ForStmtClass: 	// ForStmt
+      loopType = 5;
+      break;
+    default:
+      break;
+  }
+  if (loopType > -1) {
+    // ループネスト値
+    loopNest++;
+    // ループ開始行
+    loopStart = CGDebugInfo::getLineNumber(S->getBeginLoc());
+    // ループ終了行
+    loopEnd   = CGDebugInfo::getLineNumber(S->getEndLoc());
+    // ファイル情報
+    llvm::DIFile *DeclFile = getOrCreateFile(S->getBeginLoc());
+    // ループ情報をDISubprogramにぶら下げる
+    SP->setFJLoopInfo(DeclFile, loopStart, loopEnd, loopNest, loopType);
+  }
+  /*
+   *  階層処理(子ステートメントの解析処理)
+   *  (自)|   |-ForStmt 0x37c5d2e0 <line:14:3, line:16:3>
+   *  (子)|   | |-DeclStmt 0x37c5d070 <line:14:8, col:17>
+   *  (孫)|   | | `-VarDecl 0x37c5cff0 <col:8, col:16> col:12 used iii 'int' cinit
+   *      |   | |   `-IntegerLiteral 0x37c5d050 <col:16> 'int' 1
+   *    ⇒|   | |-<<<NULL>>>
+   */
+  for (Stmt *stmt : S->children()) {
+    // ステートメントが<<<NULL>>>の場合、対象外とする
+    if (!stmt) continue;
+    // 孫ステートメント以下(以降)の解析
+    collectLoopInformation(SP, stmt, loopNest);
+  }
+}
+// End Fujitsu Extension: 3-D-003
+
 void CGDebugInfo::emitFunctionStart(GlobalDecl GD, SourceLocation Loc,
                                     SourceLocation ScopeLoc, QualType FnType,
                                     llvm::Function *Fn, bool CurFuncIsThunk) {
@@ -3949,6 +4091,12 @@ void CGDebugInfo::emitFunctionStart(GlobalDecl GD, SourceLocation Loc,
       FDContext, Name, LinkageName, Unit, LineNo, DIFnType, ScopeLine,
       FlagsForDef, SPFlagsForDef, TParamsArray.get(), Decl);
   Fn->setSubprogram(SP);
+// Start Fujitsu Extension: 3-D-003
+  if ((HasDecl) &&
+      (CGM.getCodeGenOpts().OptimizationLevel > 0 && CGM.getCodeGenOpts().FjLine)) {
+    collectLoopInformation(SP, D->getBody(), 0);
+  }
+// End Fujitsu Extension: 3-D-003
   // We might get here with a VarDecl in the case we're generating
   // code for the initialization of globals. Do not record these decls
   // as they will overwrite the actual VarDecl Decl in the cache.

@@ -1,4 +1,6 @@
-// RUN: %clang -### -S %s        2>&1 | FileCheck --check-prefix=CHECK-WITHOUT-G %s
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -### -ffj-no-line -S %s        2>&1 | FileCheck --check-prefix=CHECK-WITHOUT-G %s
+// End Fujitsu Extension: 3-D-003
 // RUN: %clang -### -S %s -g -target x86_64-linux-gnu 2>&1 \
 // RUN:             | FileCheck --check-prefix=CHECK-WITH-G %s
 
@@ -11,10 +13,14 @@
 // RUN:             | FileCheck --check-prefix=CHECK-WITH-G-DWARF2 %s
 
 // 'g0' is the default. Just sanity-test that it does nothing
-// RUN: %clang -### -S %s -g0    2>&1 | FileCheck --check-prefix=CHECK-WITHOUT-G %s
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -### -ffj-no-line -S %s -g0    2>&1 | FileCheck --check-prefix=CHECK-WITHOUT-G %s
+// End Fujitsu Extension: 3-D-003
 
 // And check that the last of -g or -g0 wins.
-// RUN: %clang -### -S %s -g -g0 2>&1 | FileCheck --check-prefix=CHECK-WITHOUT-G %s
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -### -ffj-no-line -S %s -g -g0 2>&1 | FileCheck --check-prefix=CHECK-WITHOUT-G %s
+// End Fujitsu Extension: 3-D-003
 
 // These should be semantically the same as not having given 'g0' at all,
 // as the last 'g' option wins.

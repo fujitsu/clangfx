@@ -187,6 +187,10 @@ public:
   /// Path of the sample Profile data file.
   std::string PGOSampleUse;
 
+  // Start Fujitsu Extension: 3-D-003
+  bool FjLine;
+  // End Fujitsu Extension: 3-D-003
+
 private:
   /// ExtensionList - This is list of all of the extensions that are registered.
   std::vector<std::pair<ExtensionPointTy, ExtensionFn>> Extensions;

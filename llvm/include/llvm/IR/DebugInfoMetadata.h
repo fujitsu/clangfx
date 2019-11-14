@@ -1349,6 +1349,9 @@ private:
   bool DebugInfoForProfiling;
   unsigned NameTableKind;
   bool RangesBaseAddress;
+// Start Fujitsu Extension: 3-D-003
+  bool FjLoopInformation;
+// End Fujitsu Extension: 3-D-003
 
   DICompileUnit(LLVMContext &C, StorageType Storage, unsigned SourceLanguage,
                 bool IsOptimized, unsigned RuntimeVersion,
@@ -1454,6 +1457,10 @@ public:
     return EmissionKind == DebugDirectivesOnly;
   }
   bool getDebugInfoForProfiling() const { return DebugInfoForProfiling; }
+// Start Fujitsu Extension: 3-D-003
+  bool getFjLoopInformation() const { return FjLoopInformation; }
+  void setFjLoopInformation(bool FLI) { this->FjLoopInformation = FLI; }
+// End Fujitsu Extension: 3-D-003
   DebugNameTableKind getNameTableKind() const {
     return (DebugNameTableKind)NameTableKind;
   }
@@ -1937,6 +1944,26 @@ public:
   }
 
 public:
+// Start Fujitsu Extension: 3-D-003
+  struct FJLoop {
+    DIFile *DeclFile;
+    unsigned StartLine;
+    unsigned EndLine;
+    unsigned Nest;
+    unsigned LoopType;          // 0:do, 1:while, 5:for
+  };
+private:
+  std::vector<FJLoop> FJLoopVector;
+
+public:
+  // setter
+  void setFJLoopInfo(DIFile *DeclFile, unsigned StartLine, unsigned EndLine,
+                     unsigned Nest, unsigned LoopType) {
+    FJLoopVector.push_back(FJLoop{DeclFile, StartLine, EndLine, Nest, LoopType});
+  }
+  // getter
+  std::vector<FJLoop> getFJLoopInfo() const { return FJLoopVector; }
+// End Fujitsu Extension: 3-D-003
   unsigned getLine() const { return Line; }
   unsigned getVirtuality() const { return getSPFlags() & SPFlagVirtuality; }
   unsigned getVirtualIndex() const { return VirtualIndex; }

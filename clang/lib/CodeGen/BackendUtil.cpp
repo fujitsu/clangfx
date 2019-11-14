@@ -685,6 +685,10 @@ void EmitAssemblyHelper::CreatePasses(legacy::PassManager &MPM,
   PMBuilder.SizeLevel = CodeGenOpts.OptimizeSize;
   PMBuilder.SLPVectorize = CodeGenOpts.VectorizeSLP;
   PMBuilder.LoopVectorize = CodeGenOpts.VectorizeLoop;
+// Start Fujitsu Extension: 3-D-003
+   PMBuilder.FjLine = CodeGenOpts.FjLine;
+// End Fujitsu Extension: 3-D-003
+
   // Only enable CGProfilePass when using integrated assembler, since
   // non-integrated assemblers don't recognize .cgprofile section.
   PMBuilder.CallGraphProfile = !CodeGenOpts.DisableIntegratedAS;

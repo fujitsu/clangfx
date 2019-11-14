@@ -120,6 +120,11 @@ public:
 
   bool includeMinimalInlineScopes() const;
 
+// Start Fujitsu Extension: 3-D-003
+  DIE *getCallerSubprogram(LexicalScope *Scope);
+  void outputFJLoopInfo(const DISubprogram *SP, DIE *Die);
+// End Fujitsu Extension: 3-D-003
+
   void initStmtList();
 
   /// Apply the DW_AT_stmt_list from this compile unit to the specified DIE.

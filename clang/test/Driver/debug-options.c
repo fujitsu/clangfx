@@ -91,8 +91,10 @@
 
 // On the PS4, -g defaults to -gno-column-info, and we always generate the
 // arange section.
-// RUN: %clang -### -c %s -target x86_64-scei-ps4 2>&1 \
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -c %s -target x86_64-scei-ps4 2>&1 \
 // RUN:             | FileCheck -check-prefix=NOG_PS4 %s
+// End Fujitsu Extension: 3-D-003
 // RUN: %clang -### -c %s -g -target x86_64-scei-ps4 2>&1 \
 // RUN:             | FileCheck -check-prefix=G_PS4 %s
 // RUN: %clang -### -c %s -g -target x86_64-scei-ps4 2>&1 \
@@ -136,9 +138,11 @@
 // RUN:             | FileCheck -check-prefix=G_ONLY_DWARF2 %s
 //
 // RUN: not %clang -### -c -gfoo %s 2>&1 | FileCheck -check-prefix=G_ERR %s
-// RUN: %clang -### -c -g -g0 %s 2>&1 | FileCheck -check-prefix=G_NO %s
-// RUN: %clang -### -c -ggdb0 %s 2>&1 | FileCheck -check-prefix=G_NO %s
-// RUN: %clang -### -c -glldb -g0 %s 2>&1 | FileCheck -check-prefix=G_NO %s
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -### -ffj-no-line -c -g -g0 %s 2>&1 | FileCheck -check-prefix=G_NO %s
+// RUN: %clang -### -ffj-no-line -c -ggdb0 %s 2>&1 | FileCheck -check-prefix=G_NO %s
+// RUN: %clang -### -ffj-no-line -c -glldb -g0 %s 2>&1 | FileCheck -check-prefix=G_NO %s
+// End Fujitsu Extension: 3-D-003
 // RUN: %clang -### -c -glldb -g1 %s 2>&1 \
 // RUN:             | FileCheck -check-prefix=GLTO_ONLY -check-prefix=G_LLDB %s
 //
@@ -169,15 +173,19 @@
 // RUN:             | FileCheck -check-prefix=G_ONLY_DWARF2 %s
 // RUN: %clang -### -c -gline-tables-only -g %s -target i386-pc-solaris 2>&1 \
 // RUN:             | FileCheck -check-prefix=G_ONLY_DWARF2 %s
-// RUN: %clang -### -c -gline-tables-only -g0 %s 2>&1 \
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -### -ffj-no-line -c -gline-tables-only -g0 %s 2>&1 \
 // RUN:             | FileCheck -check-prefix=GLTO_NO %s
+// End Fujitsu Extension: 3-D-003
 //
-// RUN: %clang -### -c -gline-directives-only %s -target x86_64-apple-darwin 2>&1 \
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -c -gline-directives-only %s -target x86_64-apple-darwin 2>&1 \
 // RUN:             | FileCheck -check-prefix=GLIO_ONLY %s
-// RUN: %clang -### -c -gline-directives-only %s -target i686-pc-openbsd 2>&1 \
+// RUN: %clang -ffj-no-line -### -c -gline-directives-only %s -target i686-pc-openbsd 2>&1 \
 // RUN:             | FileCheck -check-prefix=GLIO_ONLY_DWARF2 %s
-// RUN: %clang -### -c -gline-directives-only %s -target x86_64-pc-freebsd10.0 2>&1 \
+// RUN: %clang -ffj-no-line -### -c -gline-directives-only %s -target x86_64-pc-freebsd10.0 2>&1 \
 // RUN:             | FileCheck -check-prefix=GLIO_ONLY_DWARF2 %s
+// End Fujitsu Extension: 3-D-003
 // RUN: %clang -### -c -gline-directives-only -g %s -target x86_64-linux-gnu 2>&1 \
 // RUN:             | FileCheck -check-prefix=G_ONLY %s
 // RUN: %clang -### -c -gline-directives-only -g %s -target x86_64-apple-darwin16 2>&1 \
@@ -188,8 +196,10 @@
 // RUN:             | FileCheck -check-prefix=G_ONLY_DWARF2 %s
 // RUN: %clang -### -c -gline-directives-only -g %s -target i386-pc-solaris 2>&1 \
 // RUN:             | FileCheck -check-prefix=G_ONLY_DWARF2 %s
-// RUN: %clang -### -c -gline-directives-only -g0 %s 2>&1 \
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -c -gline-directives-only -g0 %s 2>&1 \
 // RUN:             | FileCheck -check-prefix=GLIO_NO %s
+// End Fujitsu Extension: 3-D-003
 //
 // RUN: %clang -### -c -grecord-gcc-switches %s 2>&1 \
 //             | FileCheck -check-prefix=GRECORD %s
@@ -270,8 +280,10 @@
 // RUN: %clang -### -gmodules -gline-tables-only %s 2>&1 \
 // RUN:        | FileCheck -check-prefix=GLTO_ONLY %s
 //
-// RUN: %clang -### -target %itanium_abi_triple -gmodules -gline-directives-only %s 2>&1 \
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -target %itanium_abi_triple -gmodules -gline-directives-only %s 2>&1 \
 // RUN:        | FileCheck -check-prefix=GLIO_ONLY %s
+// End Fujitsu Extension: 3-D-003
 //
 // NOG_PS4: "-cc1"
 // NOG_PS4-NOT: "-dwarf-version=

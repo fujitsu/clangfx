@@ -1,8 +1,12 @@
-// RUN: %clang -O1 -fvectorize -target x86_64-unknown-unknown -emit-llvm -Rpass-analysis -S %s -o - 2>&1 | FileCheck %s --check-prefix=RPASS
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -O1 -fvectorize -target x86_64-unknown-unknown -emit-llvm -Rpass-analysis -S %s -o - 2>&1 | FileCheck %s --check-prefix=RPASS
+// End Fujitsu Extension: 3-D-003
 // RUN: %clang -O1 -fvectorize -target x86_64-unknown-unknown -emit-llvm -S %s -o - 2>&1 | FileCheck %s
 
-// RPASS: {{.*}}:7:8: remark: loop not vectorized: loop contains a switch statement
-// CHECK-NOT: {{.*}}:7:8: remark: loop not vectorized: loop contains a switch statement
+// Start Fujitsu Extension: 3-D-003
+// RPASS: {{.*}}:11:8: remark: loop not vectorized: loop contains a switch statement
+// CHECK-NOT: {{.*}}:11:8: remark: loop not vectorized: loop contains a switch statement
+// End Fujitsu Extension: 3-D-003
 
 double foo(int N, int *Array) {
   double v = 0.0;

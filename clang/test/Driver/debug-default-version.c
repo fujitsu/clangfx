@@ -4,7 +4,9 @@
 // RUN: %clang -### -Werror -target x86_64-linux-gnu -gdwarf-5 -S -fdebug-default-version=2 -o - %s 2>&1 | FileCheck %s --check-prefix=DWARF5
 // RUN: %clang -### -Werror -target x86_64-linux-gnu -fdebug-default-version=5 -g -S -o - %s 2>&1 | FileCheck %s --check-prefix=DWARF5
 // RUN: %clang -### -Werror -target x86_64-linux-gnu -gdwarf -fdebug-default-version=2 -S -o - %s 2>&1 | FileCheck %s --check-prefix=DWARF2
-// RUN: %clang -### -Werror -target x86_64-linux-gnu -fdebug-default-version=4 -S -o - %s 2>&1 | FileCheck %s --check-prefixes=NODEBUGINFO,NODWARF4
+// Start Fujitsu Extension: 3-D-003
+// RUN: %clang -ffj-no-line -### -Werror -target x86_64-linux-gnu -fdebug-default-version=4 -S -o - %s 2>&1 | FileCheck %s --check-prefixes=NODEBUGINFO,NODWARF4
+// End Fujitsu Extension: 3-D-003
 
 // Check which debug info formats we use on Windows. By default, in an MSVC
 // environment, we should use codeview. You can enable dwarf, which implicitly

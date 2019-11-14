@@ -745,6 +745,10 @@ private:
                            llvm::MDTuple *&TemplateParameters,
                            llvm::DIScope *&VDContext);
 
+// Start Fujitsu Extension: 3-D-003
+  void collectLoopInformation(llvm::DISubprogram *SP, Stmt *S, unsigned Nest);
+// End Fujitsu Extension: 3-D-003
+
   /// Allocate a copy of \p A using the DebugInfoNames allocator
   /// and return a reference to it. If multiple arguments are given the strings
   /// are concatenated.

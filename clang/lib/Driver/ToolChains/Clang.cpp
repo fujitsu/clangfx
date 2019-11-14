@@ -3932,6 +3932,19 @@ static void renderDebugOptions(const ToolChain &TC, const Driver &D,
     }
   }
 
+// Start Fujitsu Extension: 3-D-003
+/**
+ * -ffj-line が有効の場合
+ *  デバッグ関連オプションとして行番号情報が無効(NoDebugInfo|LocTrackingOnly)
+ *  ならば、-gline-tables-onlyを有効にする(行番号情報を取得するため)
+ */
+  if (Args.hasFlag(options::OPT_ffj_line, options::OPT_ffj_no_line, true)) {
+    CmdArgs.push_back("-ffj-line");
+    if (DebugInfoKind < clang::codegenoptions::DebugLineTablesOnly)
+      DebugInfoKind = codegenoptions::DebugLineTablesOnly;
+  }
+// End Fujitsu Extension: 3-D-003
+
   // If a debugger tuning argument appeared, remember it.
   if (const Arg *A =
           Args.getLastArg(options::OPT_gTune_Group, options::OPT_ggdbN_Group)) {
