@@ -625,6 +625,7 @@ def ProcA55     : SubtargetFeature<"a55", "ARMProcFamily", "CortexA55",
                                    FeatureRCPC,
                                    FeaturePerfMon,
                                    FeaturePostRAScheduler,
+                                   FeatureFuseAddress,
                                    ]>;
 
 def ProcA510    : SubtargetFeature<"a510", "ARMProcFamily", "CortexA510",
