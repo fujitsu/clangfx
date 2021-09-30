@@ -195,6 +195,9 @@ protected:
   bool HasSMEF64 = false;
   bool HasSMEI64 = false;
 
+  // AppleA7 system register.
+  bool HasAppleA7SysReg = false;
+
   // Future architecture extensions.
   bool HasETE = false;
   bool HasTRBE = false;
