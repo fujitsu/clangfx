@@ -907,6 +907,9 @@ public:
   ///  architectural maximum vector length, and None otherwise.
   Optional<unsigned> getMaxVScale() const;
 
+  /// \return the value of vscale to tune the cost model for.
+  Optional<unsigned> getVScaleForTuning() const;
+
   /// \return True if the vectorization factor should be chosen to
   /// make the vector of the smallest element type match the size of a
   /// vector register. For wider element types, this could result in
@@ -1563,6 +1566,7 @@ public:
   virtual TypeSize getRegisterBitWidth(RegisterKind K) const = 0;
   virtual unsigned getMinVectorRegisterBitWidth() const = 0;
   virtual Optional<unsigned> getMaxVScale() const = 0;
+  virtual Optional<unsigned> getVScaleForTuning() const = 0;
   virtual bool shouldMaximizeVectorBandwidth() const = 0;
   virtual ElementCount getMinimumVF(unsigned ElemWidth,
                                     bool IsScalable) const = 0;
@@ -2014,6 +2018,9 @@ public:
   }
   Optional<unsigned> getMaxVScale() const override {
     return Impl.getMaxVScale();
+  }
+  Optional<unsigned> getVScaleForTuning() const override {
+    return Impl.getVScaleForTuning();
   }
   bool shouldMaximizeVectorBandwidth() const override {
     return Impl.shouldMaximizeVectorBandwidth();
