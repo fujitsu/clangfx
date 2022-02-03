@@ -664,6 +664,9 @@ void tools::addArchSpecificRPath(const ToolChain &TC, const ArgList &Args,
 bool tools::addOpenMPRuntime(ArgStringList &CmdArgs, const ToolChain &TC,
                              const ArgList &Args, bool ForceStaticHostRuntime,
                              bool IsOffloadingHost, bool GompNeedsRT) {
+  if (Args.hasArg(options::OPT_ffj_fjomp))
+    return false;
+
   if (!Args.hasFlag(options::OPT_fopenmp, options::OPT_fopenmp_EQ,
                     options::OPT_fno_openmp, false))
     return false;

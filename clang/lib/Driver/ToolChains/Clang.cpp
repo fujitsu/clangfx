@@ -5745,6 +5745,10 @@ void Clang::ConstructJob(Compilation &C, const JobAction &JA,
 
   // Forward flags for OpenMP. We don't do this if the current action is an
   // device offloading action other than OpenMP.
+  if (Args.hasArg(options::OPT_ffj_fjomp) &&
+      !Args.hasFlag(options::OPT_fopenmp, options::OPT_fopenmp_EQ,
+                   options::OPT_fno_openmp, false))
+    CmdArgs.push_back("-fopenmp");
   if (Args.hasFlag(options::OPT_fopenmp, options::OPT_fopenmp_EQ,
                    options::OPT_fno_openmp, false) &&
       (JA.isDeviceOffloading(Action::OFK_None) ||

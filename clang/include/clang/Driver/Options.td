@@ -2399,6 +2399,8 @@ defm openmp_optimistic_collapse : BoolFOption<"openmp-optimistic-collapse",
   PosFlag<SetTrue, [CC1Option]>, NegFlag<SetFalse>, BothFlags<[NoArgumentUnused, HelpHidden]>>;
 def static_openmp: Flag<["-"], "static-openmp">,
   HelpText<"Use the static host OpenMP runtime while linking.">;
+def ffj_fjomp : Flag<["-"], "ffj-fjomp">, Group<f_Group>, Flags<[NoArgumentUnused]>,
+  HelpText<"Use Fujitsu OpenMP Library based on LLVM 7.1.0.">;
 def fno_optimize_sibling_calls : Flag<["-"], "fno-optimize-sibling-calls">, Group<f_Group>;
 def foptimize_sibling_calls : Flag<["-"], "foptimize-sibling-calls">, Group<f_Group>;
 defm escaping_block_tail_calls : BoolFOption<"escaping-block-tail-calls",

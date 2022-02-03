@@ -380,6 +380,15 @@ void tools::gnutools::StaticLibTool::ConstructJob(
 }
 
 // Start Fujitsu Extension: 7-L-018
+// -fopenmp
+static bool isOpenmp(const ArgList &Args) {
+  if (Args.hasFlag(options::OPT_fopenmp, options::OPT_fno_openmp, false)
+      || Args.hasArg(options::OPT_ffj_fjomp))
+    return true;
+ 
+  return false;
+}
+
 // --linkcoarray
 static bool isLinkcoarray(const ArgList &Args) {
   /**
@@ -424,6 +433,51 @@ static void addFujitsuProfilerRuntimeForMPI(ArgStringList &CmdArgs) {
   CmdArgs.push_back("-lfjprofmpi");
 }
 
+static void addFujitsuFortranRuntime(const Driver &D,
+                                     ArgStringList &CmdArgs, const ArgList &Args,
+                                     const std::string &FJLib64Path,
+                                     llvm::Triple::ArchType TargetArch,
+                                     const std::string &CPU) {
+  if (isLinkprof(Args))
+    CmdArgs.push_back(Args.MakeArgString(FJLib64Path + "/fjomp.o"));
+
+  if (Args.hasArg(options::OPT_ffj_fjomp)) {
+    CmdArgs.push_back(Args.MakeArgString(FJLib64Path + "/fjcrt0.o"));
+
+    CmdArgs.push_back("-lfjomphk");
+    CmdArgs.push_back("-lfjomp");
+
+    CmdArgs.push_back("-lfj90i");
+    switch (TargetArch) {
+    default:
+      CmdArgs.push_back("-lfj90f");
+      break;
+    case llvm::Triple::aarch64:
+      CmdArgs.push_back("-lfj90f");
+      CmdArgs.push_back("-lfjsrcinfo");
+      break;
+    }
+    CmdArgs.push_back("-lfjcrt");
+    CmdArgs.push_back("-lfjompcrt");
+  } else {
+    CmdArgs.push_back("-lomp");
+  }
+}
+
+static void addSystemLibrary(ArgStringList &CmdArgs,
+                             const ArgList &Args,
+                             llvm::Triple::ArchType TargetArch) {
+
+  CmdArgs.push_back("-lm");
+  CmdArgs.push_back("-lrt");
+  CmdArgs.push_back("-latomic");
+  CmdArgs.push_back("-lpthread");
+  CmdArgs.push_back("-lelf");
+  CmdArgs.push_back("-lz");
+  CmdArgs.push_back("-ldl");
+}
+
+
 // Fujitsu runtime
 static void addFujitsuRuntime(const Driver &D,
                               ArgStringList &CmdArgs,
@@ -437,9 +491,15 @@ static void addFujitsuRuntime(const Driver &D,
   if (linkProfiler)
     addFujitsuProfilerObject(CmdArgs, Args, FJLib64Path);
 
+  if (isOpenmp(Args))
+    addFujitsuFortranRuntime(D, CmdArgs, Args, FJLib64Path, TargetArch, CPU);
+
   // Profiler runtime
   if (linkProfiler)
     addFujitsuProfilerRuntime(CmdArgs);
+
+  if (isOpenmp(Args))
+    addSystemLibrary(CmdArgs, Args, TargetArch);  
 }
 // End Fujitsu Extension: 7-L-018
 
