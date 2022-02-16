@@ -675,6 +675,14 @@ void tools::gnutools::Linker::ConstructJob(Compilation &C, const JobAction &JA,
     ToolChain.addFastMathRuntimeIfAvailable(Args, CmdArgs);
   }
 
+  // Start Fujitsu Extension: 7-L-018
+  // add libgcc_s.so path in FJ Devkit
+  if (const Arg *A = Args.getLastArg(options::OPT_ffj_libgccs_dir_EQ)) {
+    static std::string LibgccsDir = A->getValue();
+    CmdArgs.push_back(Args.MakeArgString("-L" + LibgccsDir));
+  }
+  // End Fujitsu Extension: 7-L-018 
+
   Args.AddAllArgs(CmdArgs, options::OPT_L);
   Args.AddAllArgs(CmdArgs, options::OPT_u);
 

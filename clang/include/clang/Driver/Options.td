@@ -1452,6 +1452,8 @@ def menable_unsafe_fp_math : Flag<["-"], "menable-unsafe-fp-math">, Flags<[CC1Op
   ImpliedByAnyOf<[cl_unsafe_math_optimizations.KeyPath, ffast_math.KeyPath]>;
 // Start Fujitsu Extension
 // Start Fujitsu Extension: 7-L-018
+def ffj_devkit_dir_EQ : Joined<["-"], "ffj-devkit-dir=">, Group<f_Group>, Flags<[NoArgumentUnused]>;
+def ffj_libgccs_dir_EQ : Joined<["-"], "ffj-libgccs-dir=">, Group<f_Group>, Flags<[NoArgumentUnused]>;
 def ffj_fjprof : Flag<["-"], "ffj-fjprof">, Group<f_Group>, Flags<[NoArgumentUnused]>,
   HelpText<"Enable the Profiler function.">;
 def ffj_no_fjprof : Flag<["-"], "ffj-no-fjprof">, Group<f_Group>, Flags<[NoArgumentUnused]>,

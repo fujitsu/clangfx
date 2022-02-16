@@ -1152,6 +1152,14 @@ Compilation *Driver::BuildCompilation(ArrayRef<const char *> ArgList) {
       CompilerPath = Split.second;
     }
   }
+
+  // Start Fujitsu Extension: 7-L-018
+  if (const Arg *A = Args.getLastArg(options::OPT_ffj_devkit_dir_EQ)) {
+    std::string Devkit = A->getValue();
+    SysRoot = Devkit + "/rfs";
+  }
+  // End Fujitsu Extension: 7-L-018 
+
   if (const Arg *A = Args.getLastArg(options::OPT__sysroot_EQ))
     SysRoot = A->getValue();
   if (const Arg *A = Args.getLastArg(options::OPT__dyld_prefix_EQ))

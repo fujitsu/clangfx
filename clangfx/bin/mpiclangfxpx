@@ -1,0 +1,11 @@
+#!/bin/bash
+
+SRC_DIR=$(cd $(dirname $0); pwd)/..
+LD_LIBRARY_PATH=$SRC_DIR/clang-comp/lib64:$LD_LIBRARY_PATH
+
+OPTS=$(generate-options-for-clangfx mpiclangfxpx $@)
+
+export OMPI_CC="$SRC_DIR/clang-comp/bin/clang-13"
+export OMPI_CXX="$SRC_DIR/clang-comp/bin/clang++"
+
+mpifccpx -ffj-mpi $OPTS

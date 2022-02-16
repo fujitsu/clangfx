@@ -1,0 +1,71 @@
+#!/bin/bash
+
+SRC_DIR=$(cd $(dirname $0); pwd)/..
+
+OPTS=""
+
+DRIVER="$1"
+
+FLAG_MCPU=0
+FLAG_DEVKIT=0
+FLAG_GCC=0
+FLAG_NOBUILTININC=0
+FLAG_NOCRASH_DIAGNOSTICS=0
+FLAG_PROF=0
+
+for OPT in "${@:2}"; do
+  case "$OPT" in
+    -mcpu=*)
+      FLAG_MCPU=1
+      ;;
+    -ffj-devkit-dir=*)
+      FLAG_DEVKIT=1
+      ;;
+    -ffj-libgccs-dir=*)
+      FLAG_GCC=1
+      ;;
+    -nobuiltininc)
+      FLAG_NOBUILTININC=1
+      ;;
+    -fno-crash-diagnostics)
+      FLAG_NOCRASH_DIAGNOSTICS=1
+      ;;
+    -ffj-fjprof | -ffj-no-fjprof)
+      FLAG_PROF=1
+      ;;
+    *)
+      ;;
+  esac
+  OPTS+="$OPT "
+done
+
+if [ $FLAG_MCPU -eq 0 ]; then
+  OPTS+="-mcpu=a64fx "
+fi
+
+if [ $FLAG_NOCRASH_DIAGNOSTICS -eq 0 ]; then
+  OPTS+="-fno-crash-diagnostics "
+fi
+
+if [ $FLAG_PROF -eq 0 ]; then
+  OPTS+="-ffj-fjprof "
+fi
+
+if [ $FLAG_NOBUILTININC -eq 0 ]; then
+  OPTS+="-I$SRC_DIR/include "
+fi
+
+if [ $DRIVER = "clangfxpx" ] || [ $DRIVER = "clangfxpx++" ] || \
+   [ $DRIVER = "mpiclangfxpx" ] || [ $DRIVER = "mpiclagfxpx++" ]; then
+  DEVKIT=/opt/FJSVxos/devkit/aarch64
+
+  if [ $FLAG_DEVKIT -eq 0 ]; then
+    OPTS+="-ffj-devkit-dir=${DEVKIT} "
+  fi
+
+  if [ $FLAG_GCC -eq 0 ]; then
+    OPTS+="-ffj-libgccs-dir=${DEVKIT}/lib/gcc/aarch64-linux-gnu/8/../../../../aarch64-linux-gnu/lib/../lib64 "
+  fi
+fi
+
+echo $OPTS

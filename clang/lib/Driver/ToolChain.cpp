@@ -553,7 +553,20 @@ std::string ToolChain::GetLinkerPath(bool *LinkerIsLLD,
   // Get -fuse-ld= first to prevent -Wunused-command-line-argument. -fuse-ld= is
   // considered as the linker flavor, e.g. "bfd", "gold", or "lld".
   const Arg* A = Args.getLastArg(options::OPT_fuse_ld_EQ);
-  StringRef UseLinker = A ? A->getValue() : CLANG_DEFAULT_LINKER;
+
+  // Start Fujitsu Extension: 7-L-018
+  StringRef UseLinker = CLANG_DEFAULT_LINKER;
+  const Arg* FJDevkit = Args.getLastArg(options::OPT_ffj_devkit_dir_EQ);
+
+  if (FJDevkit) {
+    static std::string FJDevkitLinker = FJDevkit->getValue();
+    FJDevkitLinker += "/bin/aarch64-linux-gnu-ld";
+    UseLinker = Args.MakeArgString(FJDevkitLinker);
+  }
+
+  if (A)
+    UseLinker = A->getValue();
+  // End Fujitsu Extension: 7-L-018 
 
   // --ld-path= takes precedence over -fuse-ld= and specifies the executable
   // name. -B, COMPILER_PATH and PATH and consulted if the value does not

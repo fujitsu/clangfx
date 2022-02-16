@@ -1586,6 +1586,19 @@ void AddAAPCSVolatileBitfieldArgs(const ArgList &Args, ArgStringList &CmdArgs) {
     CmdArgs.push_back("-faapcs-bitfield-load");
 }
 
+void AddScalableVectorizationArgs(const ArgList &Args, ArgStringList &CmdArgs) {
+  for (const Arg *A : Args.filtered(options::OPT_mllvm)) {
+    StringRef V = A->getValue();
+    if (V == "-scalable-vectorization=off" ||
+        V == "-scalable-vectorization=on" ||
+        V == "-scalable-vectorization=preferred")
+      return;
+  }
+
+  CmdArgs.push_back("-mllvm");
+  CmdArgs.push_back("-scalable-vectorization=preferred");
+}
+
 namespace {
 void RenderARMABI(const llvm::Triple &Triple, const ArgList &Args,
                   ArgStringList &CmdArgs) {
@@ -1833,7 +1846,10 @@ void Clang::AddAArch64TargetArgs(const ArgList &Args,
       // Handle the unsupported values passed to msve-vector-bits.
       D.Diag(diag::err_drv_unsupported_option_argument)
           << A->getOption().getName() << Val;
-  }
+    else if (Val.equals("scalable"))
+      AddScalableVectorizationArgs(Args, CmdArgs);
+  } else
+    AddScalableVectorizationArgs(Args, CmdArgs);
 
   AddAAPCSVolatileBitfieldArgs(Args, CmdArgs);
 
