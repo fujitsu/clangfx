@@ -3606,6 +3606,10 @@ extern int __kmp_barrier(enum barrier_type bt, int gtid, int is_split,
 extern void __kmp_end_split_barrier(enum barrier_type bt, int gtid);
 extern int __kmp_barrier_gomp_cancel(int gtid);
 
+/* declarations for Futisu functions */
+extern void __kmp_fork_barrier(int gtid, int tid) ;
+extern void __kmp_join_barrier(int gtid) ;
+
 /*!
  * Tell the fork call which compiler generated the fork call, and therefore how
  * to deal with the call.
@@ -3714,6 +3718,14 @@ extern int __kmp_invoke_microtask(microtask_t pkfn, int gtid, int npr, int argc,
                                   void **exit_frame_ptr
 #endif
 );
+
+#pragma weak __ToolsStart
+#pragma weak __ToolsStop
+#pragma weak __ToolsRun
+
+extern void __ToolsStart();
+extern void __ToolsStop();
+extern int  __ToolsRun();
 
 /* ------------------------------------------------------------------------ */
 

@@ -37,6 +37,7 @@ pushd $BUILD_DIR
       -DLLVM_TARGETS_TO_BUILD="AArch64"        \
       -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra;libcxx;libcxxabi;compiler-rt;lld;openmp;polly" \
       -DLLVM_ENABLE_TERMINFO=OFF               \
+      -DLIBOMP_USE_ITT_NOTIFY=FALSE            \
       -DCLANG_VENDOR="Fujitsu"                 \
       ../llvm
   ninja

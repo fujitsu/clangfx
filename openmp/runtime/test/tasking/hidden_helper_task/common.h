@@ -54,7 +54,7 @@ void __kmpc_end_taskgroup(ident_t *, kmp_int32);
 }
 
 static kmp_int32 get_num_hidden_helper_threads() {
-  static kmp_int32 __kmp_hidden_helper_threads_num = 8;
+  static kmp_int32 __kmp_hidden_helper_threads_num = 0;
   if (const char *env = std::getenv("LIBOMP_NUM_HIDDEN_HELPER_THREADS")) {
     return std::stoi(env);
   }

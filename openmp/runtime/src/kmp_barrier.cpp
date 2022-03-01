@@ -37,6 +37,23 @@
 
 void __kmp_print_structure(void); // Forward declaration
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+// ツール側でバリア関数として認識するために宣言
+static bool __kmp_linear_barrier_release_cancellable(
+    enum barrier_type bt, kmp_info_t *this_thr, int gtid, int tid,
+    int propagate_icvs USE_ITT_BUILD_ARG(void *itt_sync_obj)) ;
+static void __kmp_tree_barrier_gather(
+    enum barrier_type bt, kmp_info_t *this_thr, int gtid, int tid,
+    void (*reduce)(void *, void *) USE_ITT_BUILD_ARG(void *itt_sync_obj)) ;
+static void __kmp_hyper_barrier_gather(
+    enum barrier_type bt, kmp_info_t *this_thr, int gtid, int tid,
+    void (*reduce)(void *, void *) USE_ITT_BUILD_ARG(void *itt_sync_obj)) ;
+#ifdef __cplusplus
+}
+#endif
+
 // ---------------------------- Barrier Algorithms ----------------------------
 
 // Linear Barrier
@@ -2056,6 +2073,11 @@ void __kmp_fork_barrier(int gtid, int tid) {
                      this_thr->th.th_current_place));
     } else {
       __kmp_affinity_set_place(gtid);
+
+      if (__ToolsRun && (__ToolsRun() == 1)) {
+        (void)__ToolsStart();
+      }
+
     }
   }
 #endif // KMP_AFFINITY_SUPPORTED

@@ -32,7 +32,9 @@ VERSION {
         kmpc_*;    # Intel extensions.
         __kmpc_*;  # Functions called by compiler-generated code.
         GOMP_*;    # GNU C compatibility functions.
-
+        __jwe*;    # Fujitsu compatibility functions.
+        jwe*;      # Fujitsu compatibility functions.
+        __mpc*;    # Fujitsu compatibility functions.
         _You_must_link_with_*;     # Mutual detection/MS compatibility symbols.
 
         #
@@ -52,6 +54,11 @@ VERSION {
         __kmp_thread_pool;
 
 	__kmp_reset_stats;
+
+        #
+        # Internal functions exported for Fujitsu profiler.
+        #
+        __PROF_Get_BarrierName;
 
 #if USE_ITT_BUILD
         #

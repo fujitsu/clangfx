@@ -50,7 +50,7 @@ extern int __kmpc_dispatch_next_8(id*, int, void*, void*, void*, void*);
 static id loc = {0, 2, 0, 0, ";file;func;0;0;;"};
 // This variable is defined in OpenMP RTL but we can't have it exposed so we
 // need to redefine it here.
-static int __kmp_hidden_helper_threads_num = 8;
+static int __kmp_hidden_helper_threads_num = 0;
 
 // ---------------------------------------------------------------------------
 int run_loop_64(i64 loop_lb, i64 loop_ub, i64 loop_st, int loop_chunk) {

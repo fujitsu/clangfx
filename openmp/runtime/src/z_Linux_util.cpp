@@ -524,7 +524,15 @@ static void *__kmp_launch_worker(void *thr) {
 
   __kmp_check_stack_overlap((kmp_info_t *)thr);
 
+  if (__ToolsRun && (__ToolsRun() == 1)) {
+    (void)__ToolsStart();
+  }
+
   exit_val = __kmp_launch_thread((kmp_info_t *)thr);
+
+  if (__ToolsRun && (__ToolsRun() == 1)) {
+    (void)__ToolsStop();
+  }
 
 #ifdef KMP_BLOCK_SIGNALS
   status = pthread_sigmask(SIG_SETMASK, &old_set, NULL);
