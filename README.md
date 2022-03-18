@@ -99,6 +99,7 @@ clangfxディレクトリは以下の構成となっています。
 
 ####  3-3-3. 富士通TCSライブラリの配置
 富士通TCSライブラリを`lib64`ディレクトリにコピーしてください。  
+以下のコマンドのみ計算ノードで実行してください。  
 
 	$ cp -rp /opt/FJSVxtclanga/tcsds-1.2.34/lib64/* [任意のディレクトリ]/clangfx/lib64/
 
@@ -117,7 +118,7 @@ clangfxディレクトリは以下の構成となっています。
 
 例)  
 
-	cp -rp /opt/FJSVxtclanga/tcsds-1.2.34/clang-comp/include/external/fj_tool dir/clangfx/include/
+	cp -rp /opt/FJSVxtclanga/tcsds-1.2.34/include/fj_tool dir/clangfx/include/
 
 ####  3-3-5. ネイティブコンパイラ環境のライブラリの配置
 環境変数`LD_LIBRARY_PATH`は`clangfx/lib64`に通っている想定のため（3-4節参照）、ネイティブコンパイラのライブラリを`clangfx/lib64`に移動してください。  
