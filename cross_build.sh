@@ -41,6 +41,6 @@ pushd $BUILD_DIR
       -DCMAKE_CROSSCOMPILING=True              \
       -DCLANG_VENDOR="Fujitsu"                 \
       ../llvm
-  ninja
-  ninja install
+  ninja -j20
+  ninja -j20 install
 popd

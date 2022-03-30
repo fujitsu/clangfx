@@ -190,7 +190,7 @@ clangfxコンパイラのコマンド/ライブラリのパスを環境変数に
 
 ## 4. 注意事項
 
-### 4-1. clangfxのビルドについて
+### 4-1. clangfxビルド時のgccライブラリについて
 clangfxのビルドに使用したマシンとclangfxを実行するマシンが異なる場合、ビルド時のgccのライブラリ
 (`libstdc++.so`など)が、clangfxを実行する環境で必要になる場合があります。必要に応じてライブラリを
 clangfxを実行するマシンにコピーしてパスを通す等の対処をしてください。
@@ -202,10 +202,51 @@ clangfxを実行するマシンにコピーしてパスを通す等の対処を�
 
 	$ export LD_LIBRARY_PATH=[gccのインストールディレクトリ]/lib64:${LD_LIBRARY_PATH}
 
+### 4-2. clangfxのビルドについて
+GCC 8.4.1とCMake 3.22.0にそれぞれバグがあり、正常にビルドができないため、
+これらのバージョン以外を使用してビルドしてください。
+
+具体的には以下のエラーが出力され、ビルドに失敗します。
+
+* GCC 8.4.1
+	```
+	clangfx_src/compiler-rt/lib/asan/../sanitizer_common/sanitizer_quarantine.h:197:3:
+	error: could not split insn
+    	}
+    	^
+	 :
+	clangfx_src/compiler-rt/lib/asan/../sanitizer_common/sanitizer_quarantine.h:197:3:
+	internal compiler error: in final_scan_insn_1, at final.c:3145 Please submit a full bug report, with preprocessed source if appropriate.
+	```
+
+* CMake 3.22.0
+	```
+	-- Installing: /path/to/clangfx_src/install/lib64/libc++.so
+	CMake Error at projects/libcxx/src/cmake_install.cmake:88 (file):
+	  file RPATH_CHANGE could not write new RPATH:
+
+	  to the file:
+	    /path/to/clangfx_src/install/lib64/libc++.so
+	Call Stack (most recent call first):
+	  projects/libcxx/cmake_install.cmake:56 (include)
+	  projects/cmake_install.cmake:48 (include)
+	  cmake_install.cmake:76 (include)
+
+	FAILED: CMakeFiles/install.util
+	```
+
+### 4-3. clangfxのビルドスクリプトについて
+clangfxのビルドスクリプトでは並列度を20としてビルドしています。  
+並列度が高いと、メモリが不足し、ビルドに失敗することがあります。
+
+ビルドができない場合は、ビルドスクリプト内のninjaコマンドの`-j`オプションの値を小さくすることで
+ビルドできるようになる場合があります。
+
 ## 5. 修正履歴
 
 | 版数 | 修正日     | 修正概要               | 修正者 |  
 | ---- | ---- | ---- | ----- |  
 | 1.0  | 2022/03/17 | 初版作成               | 富士通 |  
+| 1.1  | 2022/03/30 | ビルド時の注意事項の追加 | 富士通 |  
 
 以上

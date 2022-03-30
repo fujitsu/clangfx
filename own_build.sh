@@ -40,6 +40,6 @@ pushd $BUILD_DIR
       -DLIBOMP_USE_ITT_NOTIFY=FALSE            \
       -DCLANG_VENDOR="Fujitsu"                 \
       ../llvm
-  ninja
-  ninja install
+  ninja -j20
+  ninja -j20 install
 popd
