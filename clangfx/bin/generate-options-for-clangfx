@@ -56,7 +56,7 @@ if [ $FLAG_NOBUILTININC -eq 0 ]; then
 fi
 
 if [ $DRIVER = "clangfxpx" ] || [ $DRIVER = "clangfxpx++" ] || \
-   [ $DRIVER = "mpiclangfxpx" ] || [ $DRIVER = "mpiclagfxpx++" ]; then
+   [ $DRIVER = "mpiclangfxpx" ] || [ $DRIVER = "mpiclangfxpx++" ]; then
   DEVKIT=/opt/FJSVxos/devkit/aarch64
 
   if [ $FLAG_DEVKIT -eq 0 ]; then
